@@ -1,4 +1,4 @@
-
+# https://zenn.dev/singularity/articles/heron-blip-v1
 
 import torch
 from heron.models.video_blip import VideoBlipForConditionalGeneration, VideoBlipProcessor
