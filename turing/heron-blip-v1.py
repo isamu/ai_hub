@@ -1,4 +1,4 @@
-# pip install heron
+
 
 import torch
 from heron.models.video_blip import VideoBlipForConditionalGeneration, VideoBlipProcessor
@@ -27,7 +27,7 @@ import requests
 from PIL import Image
 
 # prepare inputs
-url = "https://www.barnorama.com/wp-content/uploads/2016/12/03-Confusing-Pictures.jpg"
+url = "https://grapee.jp/wp-content/uploads/53165_main.jpg"
 image = Image.open(requests.get(url, stream=True).raw)
 
 text = f"##human: この画像の面白い点は何ですか?\n##gpt: "
