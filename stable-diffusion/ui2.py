@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 import sys
 import signal
 
-from os.path import expanduser
+# from os.path import expanduser
 
 import torch
 from diffusers import StableDiffusionXLPipeline, UNet2DConditionModel, EulerDiscreteScheduler
@@ -25,14 +25,15 @@ class Window(QMainWindow):
         super().__init__()
  
         self.setWindowTitle("Python ")
-        self.setGeometry(100, 100, 600, 400)
+        self.setGeometry(100, 100, 300, 200)
         self.UiComponents()
 
         ## image
         self.imageLabel = QLabel(self)
         self.imageLabel.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
 
-        self.resize(800, 600)
+        # w/h
+        self.resize(900, 1200)
 
         
         self.show()
@@ -58,8 +59,8 @@ class Window(QMainWindow):
         
     def createImage(self, prompt):
 
-        home = expanduser("~")
-        fileName = home + "/episode2.jpg"
+        # home = expanduser("~")
+        fileName = "/tmp/ui-episode2.jpg"
 
         self.load()
         self.pipe.scheduler = EulerDiscreteScheduler.from_config(self.pipe.scheduler.config, timestep_spacing="trailing")
@@ -67,8 +68,10 @@ class Window(QMainWindow):
 
         
         image = QImage(fileName)
-        self.imageLabel.setPixmap(QPixmap.fromImage(image))
-        self.imageLabel.move(0, 100)
+        pixmap = QPixmap.fromImage(image)
+        pixmap2 = pixmap.scaledToWidth(800)
+        self.imageLabel.setPixmap(pixmap2)
+        self.imageLabel.move(20, 150)
 
         self.imageLabel.adjustSize()
 
