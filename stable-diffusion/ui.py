@@ -1,3 +1,7 @@
+# pyinstaller ui.py --onefile --noconsole
+
+import fcntl
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -9,6 +13,8 @@ import signal
 
 from os.path import expanduser
  
+
+
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -16,12 +22,17 @@ class Window(QMainWindow):
         self.setWindowTitle("Python ")
         self.setGeometry(100, 100, 600, 400)
         self.UiComponents()
+
+
+        ## image
+        self.imageLabel = QLabel(self)
+        self.imageLabel.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+
+        self.resize(600, 800)
+
         self.show()
 
         
-        self.pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
-        self.pipe = self.pipe.to("mps")
-        self.pipe.enable_attention_slicing()
 
         
     def UiComponents(self):
@@ -31,7 +42,7 @@ class Window(QMainWindow):
 
 
         button = QPushButton("CLICK", self)
-        button.setGeometry(200, 150, 100, 40)
+        button.setGeometry(20, 70, 100, 40)
         button.clicked.connect(self.clickme)
         text = button.text()
  
@@ -43,18 +54,46 @@ class Window(QMainWindow):
         self.createImage(textboxValue)
         
     def createImage(self, prompt):
-        # prompt = "airplane and clouds"
+        self.load()
         n_prompt = "bad fingers"
-
-        # warmup for mac
         self.pipe(prompt, negative_prompt=n_prompt,  num_inference_steps=1)
 
         image = self.pipe(prompt, negative_prompt=n_prompt).images[0]
-
+        
+        # self.canvas.setImage(image)
+        
         home = expanduser("~")
-        image.save(home + "/episode1.jpg")
+        fileName = home + "/episode1.jpg"
+        image.save(fileName)
+
+        image = QImage(fileName)
+        self.imageLabel.setPixmap(QPixmap.fromImage(image))
+        self.imageLabel.move(20, 150)
+
+        self.imageLabel.adjustSize()
+
 
         
-App = QApplication(sys.argv)
-window = Window()
-sys.exit(App.exec())
+    def load(self):
+        self.pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
+        self.pipe = self.pipe.to("mps")
+        self.pipe.enable_attention_slicing()
+
+
+def main():
+    App = QApplication(sys.argv)
+    window = Window()
+    sys.exit(App.exec())
+
+
+if __name__ == '__main__':
+    with open('/tmp/ui_lockfile', 'w') as f:
+        try:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            print('Another instance is running')
+            exit(0)
+        try:
+            main()
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
